@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Stereopix viewer examples - Presenter PoC</title>
+		<link rel="stylesheet" type="text/css" href="/style.css" media="all" />
+		<script id="stereopix_json" type="application/json">
+		{
+			"media": [
+				{ "url": "nb1.png" },
+				{ "url": "nb2.png" },
+				{ "url": "nb3.png" },
+				{ "url": "nb4.png" },
+				{ "url": "nb5.png" }
+			],
+			"meta": {
+				"url_base": "https://stereopix-viewer-examples.github.io/media/full/"
+			}
+		}
+		</script>
+	</head>
+	<body>
+		<div id="content">
+			<h1>Stereopix viewer examples - Presenter PoC</h1>
+
+			<p><a href="/">&laquo;&nbsp;Return to index</a></p>
+
+			<p>This example shows a proof-of-concept (PoC) presenter assistant, allowing multiple people to look at the same image in sync with their prefered viewing method.</p>
+
+			<p>This example is built from a websocket example of javascript.info (<a href="https://javascript.info/websocket#chat-example">https://javascript.info/websocket#chat-example</a>) and it uses its mini-chat server. In addition, this PoC is absolutely not designed to be secure. <b style="color:#a00">Do not use it as is for a real application!</b></p>
+			<p>To fully appreciate the example, open this page in multiple windows or with multiple devices at the same time.</p>
+
+			<script type="text/javascript">
+				var viewer = null;
+				window.addEventListener("DOMContentLoaded", function() {
+					var socket = null;
+					var connected_nb = 0;
+					function reset_forms() {
+						document.getElementById('button_connect').value = 'Connect';
+						document.getElementById('presenter_connected_status').textContent = 'No';
+						document.getElementById('presenter_position').disabled = true;
+						document.getElementById('presenter_position_btn').disabled = true;
+						document.getElementById('viewer_connected_status').textContent = 'No';
+						connected_nb=0;
+						document.getElementById('presenter_connected_nb').textContent = connected_nb;
+					}
+					reset_forms();
+					document.getElementById('button_connect').addEventListener('click', function() {
+						if (socket) {
+							socket.send("presenter:disconnect");
+							socket.close();
+						} else {
+							var s = new WebSocket("wss://javascript.info/article/websocket/chat/ws");
+							s.addEventListener('open', function (event) {
+								s.send('presenter:connect');
+								socket = s;
+								document.getElementById('button_connect').value = 'Disconnect';
+								document.getElementById('presenter_connected_status').textContent = 'Yes';
+								document.getElementById('presenter_position').disabled = false;
+								document.getElementById('presenter_position_btn').disabled = false;
+								document.getElementById('viewer_connected_status').textContent = 'Yes';
+							});
+							s.addEventListener('error', function (error) {
+								alert('[error] ' + error.message);
+							});
+							s.addEventListener('close', function (event) {
+								socket = null;
+								reset_forms();
+							});
+							s.addEventListener('message', function (event) {
+								if (event.data.startsWith('presenter:')) {
+									var message = event.data.substring(10);
+									console.log(message);
+									if (message=='connect') {
+										connected_nb++;
+										document.getElementById('presenter_connected_nb').textContent = connected_nb;
+									} else if (message=='disconnect') {
+										connected_nb--;
+										document.getElementById('presenter_connected_nb').textContent = connected_nb;
+									} else if (message.startsWith('position=')) {
+										var pos = Number(message.substring(9));
+										document.getElementById('presenter_position').value = pos;
+										if (viewer) viewer.postMessage({'stereopix_action': 'goto', 'position': pos}, 'https://stereopix.net');
+									}
+								}
+							});
+						}
+						return false;
+					});
+					document.getElementById('presenter_position_btn').form.addEventListener('submit', function(event) {
+						event.preventDefault();
+						if (socket) {
+							socket.send('presenter:position=' + document.getElementById('presenter_position').value);
+						}
+					});
+					window.addEventListener('beforeunload', function(e) {
+						if (socket)
+							socket.send("presenter:disconnect");
+					});
+				});
+				window.addEventListener('message', function(e) {
+					if (e.origin == 'https://stereopix.net') {
+						if (e.data.type == 'viewerReady') {
+							var json = JSON.parse(document.getElementById('stereopix_json').textContent);
+							e.source.postMessage({'stereopix_action': 'list_add_json', 'media': json}, 'https://stereopix.net');
+							viewer = e.source;
+						}
+					}
+				});
+			</script>
+
+			<p><input type="button" value="Connect" id="button_connect" />
+
+			<h2>Presenter board</h2>
+			<p>Connected: <span id="presenter_connected_status">No<span></p>
+			<p>Connected number: <span id="presenter_connected_nb">0</span> <small>(Seen since connected)</small></p>
+			<form><p><label>Position: <input type="number" value="0" id="presenter_position" /></label> <input type="submit" value="Send" id="presenter_position_btn" /></p></form>
+
+			<h2>Viewer</h2>
+			<p>Connected: <span id="viewer_connected_status">No<span></p>
+			<iframe title="Stereoscopic (3D) photo viewer" id="stereopix_viewer"
+				style="width: 100%; height: 960px; max-height: 100vh; max-width: 100vw; border: 2px solid black; margin: 8px 0;" 
+				allowfullscreen="yes" allowvr="yes" allow="fullscreen;xr-spatial-tracking;accelerometer;gyroscope" 
+				src="https://stereopix.net/viewer?embed"></iframe>
+		</div>
+	</body>
+</html>
+
