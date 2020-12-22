@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Stereopix viewer examples - Ratio 2:1</title>
+		<link rel="stylesheet" type="text/css" href="/style.css" media="all" />
+		<style>
+			.aspect-ratio-box {
+				position: relative;
+				width: 100%;
+				padding-top: 50%; /* width divided by ratio (here 2:1) */
+			}
+			.aspect-ratio-box iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				max-height: 100vh;
+				max-width: 100vw;
+				border: 2px solid black;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="content">
+			<h1>Stereopix viewer examples - Ratio 2:1</h1>
+
+			<p><a href="/">&laquo;&nbsp;Return to index</a></p>
+
+			<p>This example shows how to change the style to display the viewer in a box of ratio 2:1.</p>
+
+			<div class="aspect-ratio-box">
+				<iframe title="Stereoscopic (3D) photo viewer" 
+					allowfullscreen="yes" allowvr="yes" allow="fullscreen;xr-spatial-tracking;accelerometer;gyroscope" 
+					src="https://stereopix.net/viewer?embed&amp;q=https%3A%2F%2Fstereopix-viewer-examples.github.io%2Fmedia%2Ffull%2Fabstract_p.jpg"></iframe>
+			</div>
+
+		</div>
+	</body>
+</html>
+
