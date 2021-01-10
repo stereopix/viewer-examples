@@ -3,23 +3,23 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Stereopix viewer examples - Conversion from Suto's viewer</title>
-		<link rel="stylesheet" type="text/css" href="/style.css" media="all" />
+		<link rel="stylesheet" type="text/css" href="../style.css" media="all" />
 	</head>
 	<body>
 		<div id="content">
 			<h1>Stereopix viewer examples - Conversion from Suto's viewer</h1>
 
-			<p><a href="/">&laquo;&nbsp;Return to index</a></p>
+			<p><a href="../">&laquo;&nbsp;Return to index</a></p>
 
 			<p>This example shows how to send a list of images originally created for the "HTML5 viewer" of M.Suto to the viewer of Stereopix.</p>
 			<p>The conversion is done (and transmitted) by script. It works both with the list transmitted through the <tt>pics</tt> variable in the old versions and through the <tt>img1</tt> variable of most recent versions (if you remove the <tt>new ThView</tt> part). For the second syntax, this converter only works with the <tt>'p'</tt> entries yet.</p>
 
 			<script type="text/javascript">
-				var pics = ["/media/full/nb1.png","/media/full/nb2.png","/media/full/nb3.png","/media/full/nb4.png","/media/full/nb5.png"];
+				var pics = ["../media/full/nb1.png","../media/full/nb2.png","../media/full/nb3.png","../media/full/nb4.png","../media/full/nb5.png"];
 				/*
 				var img1 = ({ // Removed "new ThView"
 					id:'image1',
-					file:['p','/media/full/nb1.png','p','/media/full/nb2.png','p','/media/full/nb3.png','p','/media/full/nb4.png','p','/media/full/nb5.png'],
+					file:['p','../media/full/nb1.png','p','../media/full/nb2.png','p','../media/full/nb3.png','p','../media/full/nb4.png','p','../media/full/nb5.png'],
 				});
 				*/
 			</script>
