@@ -11,14 +11,32 @@
 
 			<p><a href="../">&laquo;&nbsp;Return to index</a></p>
 
-			<p>This example shows a list of images passed by JSON file whose address is passed in the URL.</p>
+			<p>This example shows a list of images passed from a JSON file.</p>
 
 			<p>See the <a href="list.json">JSON file</a></p>
 
+			<script type="text/javascript">
+				var json_url = './list.json'; // Path of the JSON file describing the image list
+				window.addEventListener('message', function(e) {
+					if (e.origin == 'https://stereopix.net') {
+						if (e.data.type == 'viewerReady') {
+							var xhr = new XMLHttpRequest();
+							xhr.open('GET', json_url);
+							xhr.onload = function () {
+								if (xhr.readyState == 4 && xhr.status == 200) {
+									var json = JSON.parse(xhr.responseText);
+									e.source.postMessage({'stereopix_action': 'list_add_json', 'media': json}, 'https://stereopix.net');
+								}
+							};
+							xhr.send(null);
+						}
+					}
+				});
+			</script>
 			<iframe title="Stereoscopic (3D) photo viewer" 
 				style="width: 100%; height: 960px; max-height: 100vh; max-width: 100vw; border: 2px solid black; margin: 8px 0;" 
 				allowfullscreen="yes" allowvr="yes" allow="fullscreen;xr-spatial-tracking;accelerometer;gyroscope" 
-				src="https://stereopix.net/viewer:embed/?q=json%3Ahttps%3A%2F%2Fstereopix.github.io%2Fviewer-examples/020_01_advanced_json_file%2Flist.json"></iframe>
+				src="https://stereopix.net/viewer:embed/"></iframe>
 		</div>
 	</body>
 </html>
