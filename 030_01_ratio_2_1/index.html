@@ -31,9 +31,24 @@
 			<p>This example shows how to change the style to display the viewer in a box of ratio 2:1.</p>
 
 			<div class="aspect-ratio-box">
+				<script type="application/json" id="stereopix_json">
+				{
+					"media": [
+						{ "url": "https://stereopix.github.io/viewer-examples/media/full/abstract_p.jpg" }
+					]
+				}
+				</script>
+				<script type="text/javascript">
+					window.addEventListener('message', function(e) {
+						if (e.origin == 'https://stereopix.net' && e.data.type == 'viewerReady') {
+							var json = JSON.parse(document.getElementById('stereopix_json').textContent);
+							e.source.postMessage({'stereopix_action': 'list_add_json', 'media': json}, 'https://stereopix.net');
+						}
+					});
+				</Script>
 				<iframe title="Stereoscopic (3D) photo viewer" 
 					allowfullscreen="yes" allowvr="yes" allow="fullscreen;xr-spatial-tracking;accelerometer;gyroscope" 
-					src="https://stereopix.net/viewer:embed/?q=https%3A%2F%2Fstereopix.github.io%2Fviewer-examples%2Fmedia%2Ffull%2Fabstract_p.jpg"></iframe>
+					src="https://stereopix.net/viewer:embed/"></iframe>
 			</div>
 
 		</div>
