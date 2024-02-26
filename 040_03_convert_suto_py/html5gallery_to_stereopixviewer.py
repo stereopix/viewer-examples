@@ -28,11 +28,11 @@ def generate_json(images, base=''):
     out = {'media': [], 'meta': {}}
     for img, thumb in images:
         out['media'].append({'url': img, 'thumbnail': thumb})
-    out['meta']['url_base'] = base
+    if base: out['meta']['url_base'] = base
     with open('list.json', 'w') as f:
         json.dump(out, f, indent='\t')
 
-def generate_viewer_page(images, title, base=''):
+def generate_viewer_page(images, title, base='', nofetch=False):
     with open('stereopix_viewer.html', 'w') as f:
         f.write('''<!doctype html>
 <html>
@@ -89,16 +89,44 @@ def generate_viewer_page(images, title, base=''):
 				if (e.origin == 'https://stereopix.net') {
 					var links = document.getElementsByClassName('gallery_link');
 					if (e.data.type == 'viewerReady') {
-						var json = { "media": [] };
-						for (var i = 0; i < links.length; i++) {
-							json.media.push({ "url": (new URL(links[i].href, document.location.href)).href });
-							links[i]['data-position'] = i;
-							links[i].addEventListener('click', function(click_event) {
-								click_event.preventDefault();
-								e.source.postMessage({ 'stereopix_action': 'goto', 'position': this['data-position'] }, 'https://stereopix.net');
+						if (links.length == 0) {
+							fetch("list.json").then(function(r) { return r.json(); }).then(function(json) {
+								var base = '';
+								if (json && json.meta && json.meta.url_base) base = json.meta.url_base;
+								if (base == "") base = document.location.href;
+								if (json && Array.isArray(json.media)) {
+									var thumbs = document.getElementsByClassName("thumbs")[0];
+									links = [];
+									for (var i = 0; i < json.media.length; i++) {
+										var link = document.createElement('a');
+										link.classList.add('gallery_link');
+										link.href = (new URL(json.media[i].url, base)).href;
+										link['data-position'] = i;
+										link.addEventListener('click', function(click_event) {
+											click_event.preventDefault();
+											e.source.postMessage({ 'stereopix_action': 'goto', 'position': this['data-position'] }, 'https://stereopix.net');
+										});
+										var img = document.createElement('img');
+										img.src = (new URL(json.media[i].thumbnail, base)).href;
+										link.appendChild(img);
+										thumbs.appendChild(link);
+										links.push(link);
+									}
+								}
+								e.source.postMessage({ 'stereopix_action': 'list_add_json', 'media': json }, 'https://stereopix.net');
 							});
+						} else {
+							var json = { "media": [] };
+							for (var i = 0; i < links.length; i++) {
+								json.media.push({ "url": (new URL(links[i].href, document.location.href)).href });
+								links[i]['data-position'] = i;
+								links[i].addEventListener('click', function(click_event) {
+									click_event.preventDefault();
+									e.source.postMessage({ 'stereopix_action': 'goto', 'position': this['data-position'] }, 'https://stereopix.net');
+								});
+							}
+							e.source.postMessage({ 'stereopix_action': 'list_add_json', 'media': json }, 'https://stereopix.net');
 						}
-						e.source.postMessage({ 'stereopix_action': 'list_add_json', 'media': json }, 'https://stereopix.net');
 					} else if (e.data.type == 'mediumChanged') {
 						links[current].classList.remove("active");
 						current = e.data.position;
@@ -115,8 +143,9 @@ def generate_viewer_page(images, title, base=''):
 
 		<div class="thumbs">
 ''')
-        for img, thumb in images:
-            f.write('			<a class="gallery_link" href="{}"><img src="{}" /></a>\n'.format(base+img, base+thumb))
+        if nofetch:
+            for img, thumb in images:
+                f.write('			<a class="gallery_link" href="{}"><img src="{}" /></a>\n'.format(base+img, base+thumb))
         f.write('''		</div>
 	</body>
 </html>''')
@@ -124,6 +153,7 @@ def generate_viewer_page(images, title, base=''):
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-b", "--base-url", "--base", dest="base", default='', help="Base URL")
+    parser.add_option("-n", "--no-fetch", dest="nofetch", default=False, action='store_true', help="Write thumbnails in document instead of loading list.json")
     parser.add_option("-i", "--index_m", "--index", dest="index_m", default='index_m.html', help="Path of the index_m.html file")
     o, args = parser.parse_args()
 
@@ -133,4 +163,4 @@ if __name__ == '__main__':
     images = find_images(o.index_m)
     title = find_title(o.index_m)
     generate_json(images, o.base)
-    generate_viewer_page(images, title, o.base)
+    generate_viewer_page(images, title, o.base, o.nofetch)
