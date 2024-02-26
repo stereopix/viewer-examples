@@ -3,6 +3,7 @@
 import sys
 import re
 import json
+import os
 import urllib.parse
 from optparse import OptionParser
 
@@ -126,6 +127,9 @@ if __name__ == '__main__':
     parser.add_option("-i", "--index_m", "--index", dest="index_m", default='index_m.html', help="Path of the index_m.html file")
     o, args = parser.parse_args()
 
+    if not os.path.isfile(o.index_m):
+        print("File '{}' does not exist. Use option --index_m to specify the file to analyze".format(o.index_m))
+        exit()
     images = find_images(o.index_m)
     title = find_title(o.index_m)
     generate_json(images, o.base)
