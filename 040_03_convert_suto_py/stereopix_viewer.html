@@ -52,16 +52,44 @@
 				if (e.origin == 'https://stereopix.net') {
 					var links = document.getElementsByClassName('gallery_link');
 					if (e.data.type == 'viewerReady') {
-						var json = { "media": [] };
-						for (var i = 0; i < links.length; i++) {
-							json.media.push({ "url": (new URL(links[i].href, document.location.href)).href });
-							links[i]['data-position'] = i;
-							links[i].addEventListener('click', function(click_event) {
-								click_event.preventDefault();
-								e.source.postMessage({ 'stereopix_action': 'goto', 'position': this['data-position'] }, 'https://stereopix.net');
+						if (links.length == 0) {
+							fetch("list.json").then(function(r) { return r.json(); }).then(function(json) {
+								var base = '';
+								if (json && json.meta && json.meta.url_base) base = json.meta.url_base;
+								if (base == "") base = document.location.href;
+								if (json && Array.isArray(json.media)) {
+									var thumbs = document.getElementsByClassName("thumbs")[0];
+									links = [];
+									for (var i = 0; i < json.media.length; i++) {
+										var link = document.createElement('a');
+										link.classList.add('gallery_link');
+										link.href = (new URL(json.media[i].url, base)).href;
+										link['data-position'] = i;
+										link.addEventListener('click', function(click_event) {
+											click_event.preventDefault();
+											e.source.postMessage({ 'stereopix_action': 'goto', 'position': this['data-position'] }, 'https://stereopix.net');
+										});
+										var img = document.createElement('img');
+										img.src = (new URL(json.media[i].thumbnail, base)).href;
+										link.appendChild(img);
+										thumbs.appendChild(link);
+										links.push(link);
+									}
+								}
+								e.source.postMessage({ 'stereopix_action': 'list_add_json', 'media': json }, 'https://stereopix.net');
 							});
+						} else {
+							var json = { "media": [] };
+							for (var i = 0; i < links.length; i++) {
+								json.media.push({ "url": (new URL(links[i].href, document.location.href)).href });
+								links[i]['data-position'] = i;
+								links[i].addEventListener('click', function(click_event) {
+									click_event.preventDefault();
+									e.source.postMessage({ 'stereopix_action': 'goto', 'position': this['data-position'] }, 'https://stereopix.net');
+								});
+							}
+							e.source.postMessage({ 'stereopix_action': 'list_add_json', 'media': json }, 'https://stereopix.net');
 						}
-						e.source.postMessage({ 'stereopix_action': 'list_add_json', 'media': json }, 'https://stereopix.net');
 					} else if (e.data.type == 'mediumChanged') {
 						links[current].classList.remove("active");
 						current = e.data.position;
@@ -77,15 +105,6 @@
 			src="https://stereopix.net/viewer:embed/"></iframe>
 
 		<div class="thumbs">
-				<a class="gallery_link" href="../media/full/nb1.png"><img src="../media/thumbs/nb1.png" /></a>
-				<a class="gallery_link" href="../media/full/nb2.png"><img src="../media/thumbs/nb2.png" /></a>
-				<a class="gallery_link" href="../media/full/nb3.png"><img src="../media/thumbs/nb3.png" /></a>
-				<a class="gallery_link" href="../media/full/nb4.png"><img src="../media/thumbs/nb4.png" /></a>
-				<a class="gallery_link" href="../media/full/nb5.png"><img src="../media/thumbs/nb5.png" /></a>
-				<a class="gallery_link" href="../media/full/nb4.png"><img src="../media/thumbs/nb4.png" /></a>
-				<a class="gallery_link" href="../media/full/nb3.png"><img src="../media/thumbs/nb3.png" /></a>
-				<a class="gallery_link" href="../media/full/nb2.png"><img src="../media/thumbs/nb2.png" /></a>
-				<a class="gallery_link" href="../media/full/nb1.png"><img src="../media/thumbs/nb1.png" /></a>
 		</div>
 	</body>
 </html>

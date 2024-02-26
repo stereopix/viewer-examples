@@ -1,0 +1,27 @@
+{
+	"media": [
+		{
+			"url": "nb1.png",
+			"thumbnail": "../thumbs/nb1.png"
+		},
+		{
+			"url": "nb2.png",
+			"thumbnail": "../thumbs/nb2.png"
+		},
+		{
+			"url": "nb3.png",
+			"thumbnail": "../thumbs/nb3.png"
+		},
+		{
+			"url": "nb4.png",
+			"thumbnail": "../thumbs/nb4.png"
+		},
+		{
+			"url": "nb5.png",
+			"thumbnail": "../thumbs/nb5.png"
+		}
+	],
+	"meta": {
+		"url_base": "https://stereopix.github.io/viewer-examples/media/full/"
+	}
+}
