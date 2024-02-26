@@ -8,7 +8,7 @@ from optparse import OptionParser
 
 def find_images(filename):
     images = []
-    pattern = re.compile('<A HREF="index.html\?(.+)"><IMG SRC="(.+)"></A>', re.IGNORECASE)
+    pattern = re.compile('<A HREF="[a-zA-Z0-9]+.html?\?(.+)"><IMG SRC="(.+)"></A>', re.IGNORECASE)
     with open(filename) as f:
         for line in f:
             m = pattern.search(line)
