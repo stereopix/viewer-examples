@@ -27,7 +27,7 @@ def find_title(filename):
 def generate_json(images, base=''):
     out = {'media': [], 'meta': {}}
     for img, thumb in images:
-        out['media'].append({'url': img, 'url_thumb': thumb})
+        out['media'].append({'url': img, 'thumbnail': thumb})
     out['meta']['url_base'] = base
     with open('list.json', 'w') as f:
         json.dump(out, f, indent='\t')
