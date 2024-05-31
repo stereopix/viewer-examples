@@ -4,6 +4,9 @@
 		<meta charset="utf-8">
 		<title>Stereopix viewer examples - Gallery</title>
 		<link rel="stylesheet" type="text/css" href="../style.css" media="all" />
+		<style>
+			.active img { border-bottom: 20px solid #800080; }
+		</style>
 	</head>
 	<body>
 		<div id="content">
@@ -14,11 +17,13 @@
 			<p>This example shows how to build a simple gallery on top of the viewer.</p>
 
 			<script type="text/javascript">
+				var last_active = 0;
+				var links = null;
 				window.addEventListener('message', function(e) {
 					if (e.origin == 'https://stereopix.net') {
 						if (e.data.type == 'viewerReady') {
 							var json = { "media": [] };
-							var links = document.getElementsByClassName('gallery_link');
+							links = document.getElementsByClassName('gallery_link');
 							for (var i = 0; i < links.length; i++) {
 								json.media.push({ "url": (new URL(links[i].href, document.location.href)).href });
 								links[i]['data-position'] = i;
@@ -28,6 +33,10 @@
 								});
 							}
 							e.source.postMessage({ 'stereopix_action': 'list_add_json', 'media': json }, 'https://stereopix.net');
+						} else if (e.data.type == 'mediumChanged') {
+							links[last_active].classList.remove('active');
+							last_active = e.data.position;
+							links[last_active].classList.add('active');
 						}
 					}
 				});
